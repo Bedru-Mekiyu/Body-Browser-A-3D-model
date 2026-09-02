@@ -1,0 +1,29 @@
+name: CI Validation
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  validate:
+    name: Repository & Model Configuration Integrity Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate JSON Model Configurations
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('models/skinned/UCS_config.json', 'utf8'))"
+
+      - name: Check Essential Files Exist
+        run: |
+          node -e "['index.html', 'js/script.js', 'js/UCSCharacter.js', 'models/skinned/UCS_config.json'].forEach(f => { if (!require('fs').existsSync(f)) throw new Error('Missing file: ' + f); })"
